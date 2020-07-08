@@ -4,7 +4,7 @@ token=$(cat /etc/hetzner-dns-token)
 
 zone_id=$(curl \
 	-H "Auth-API-Token: ${token}" \
-	"https://dns.hetzner.com/api/v1/zones" | \
+	"https://dns.hetzner.com/api/v1/zones?search_name=${CERTBOT_DOMAIN}" | \
 	jq ".\"zones\"[] | select(.name == \"${CERTBOT_DOMAIN}\") | .id" 2>/dev/null | tr -d '"')
 
 curl -X "POST" "https://dns.hetzner.com/api/v1/records" \
