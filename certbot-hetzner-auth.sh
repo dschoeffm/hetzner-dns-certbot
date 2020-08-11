@@ -12,5 +12,7 @@ curl -X "POST" "https://dns.hetzner.com/api/v1/records" \
      -H "Auth-API-Token: ${token}" \
      -d "{ \"value\": \"${CERTBOT_VALIDATION}\", \"ttl\": 86400, \"type\": \"TXT\", \"name\": \"_acme-challenge\", \"zone_id\": \"${zone_id}\" }" > /dev/null 2>/dev/null
 
-# just make sure we sleep for a while (this should be a dig poll loop)
-sleep 30
+until dig @8.8.8.8 -t txt _acme-challenge.${CERTBOT_DOMAIN} | grep ${CERTBOT_VALIDATION}
+do
+	sleep 2
+done
