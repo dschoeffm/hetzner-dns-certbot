@@ -12,7 +12,18 @@ curl -X "POST" "https://dns.hetzner.com/api/v1/records" \
      -H "Auth-API-Token: ${token}" \
      -d "{ \"value\": \"${CERTBOT_VALIDATION}\", \"ttl\": 86400, \"type\": \"TXT\", \"name\": \"_acme-challenge\", \"zone_id\": \"${zone_id}\" }" > /dev/null 2>/dev/null
 
-until dig @8.8.8.8 -t txt _acme-challenge.${CERTBOT_DOMAIN} | grep ${CERTBOT_VALIDATION}
+
+POLLING_DNS=`dig +short NS ${CERTBOT_DOMAIN} | awk 'NR==1' | sed 's/.$//'`
+POLLING_INTERVAL=2
+POLLING_TIMEOUT=100
+echo "Waiting for TXT record _acme-challenge.${CERTBOT_DOMAIN} with value \"${CERTBOT_VALIDATION}\" in NS ${POLLING_DNS}..."
+i=0
+until dig @${POLLING_DNS} -t txt _acme-challenge.${CERTBOT_DOMAIN} | grep ${CERTBOT_VALIDATION}
 do
-	sleep 2
+  ((i=i+POLLING_INTERVAL))
+  if [[ $i -gt $POLLING_TIMEOUT ]]; then
+    echo "Timed out waiting for TXT record" 1>&2;
+    exit 1
+  fi
+	sleep $POLLING_INTERVAL
 done
