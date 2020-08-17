@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 token=$(cat /etc/hetzner-dns-token)
 
