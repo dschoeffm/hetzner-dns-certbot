@@ -1,7 +1,6 @@
 #!/bin/bash
 
 token=$(cat /etc/hetzner-dns-token)
-
 search_name=$( echo $CERTBOT_DOMAIN | rev | cut -d'.' -f 1,2 | rev)
 
 zone_id=$(curl \
